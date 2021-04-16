@@ -1,3 +1,5 @@
+using System;
+
 namespace Wiz.Chapter4.Domain.Models
 {
     public class User
@@ -15,5 +17,10 @@ namespace Wiz.Chapter4.Domain.Models
         public int CompanyId { get; set; }
         public string Email { get; set; }
         public UserType Type { get; set; }
+
+        public void ChangeEmail(string newEmail, Company company)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

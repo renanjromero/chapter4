@@ -1,13 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
     <ProjectGuid>{51476A27-2A49-4A74-96EE-2D18A8578053}</ProjectGuid>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="32.0.1" />
+    <PackageReference Include="Bogus" Version="32.0.1"/>
     <PackageReference Include="coverlet.collector" Version="3.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,34 +14,32 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
-    <PackageReference Include="Moq" Version="4.15.2" />
-    <PackageReference Include="ReportGenerator" Version="4.8.5 " />
-    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3"/>
+    <PackageReference Include="Moq" Version="4.15.2"/>
+    <PackageReference Include="ReportGenerator" Version="4.8.5 "/>
+    <PackageReference Include="xunit" Version="2.4.1"/>
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="FluentAssertions" Version="5.10.3"/>
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Wiz.Chapter4.API\Wiz.Chapter4.API.csproj" />
-    <ProjectReference Include="..\..\src\Wiz.Chapter4.Domain\Wiz.Chapter4.Domain.csproj" />
-    <ProjectReference Include="..\..\src\Wiz.Chapter4.Infra\Wiz.Chapter4.Infra.csproj" />
-    <ProjectReference Include="..\Wiz.Chapter4.Core.Tests\Wiz.Chapter4.Core.Tests.csproj" /> 
+    <ProjectReference Include="..\..\src\Wiz.Chapter4.API\Wiz.Chapter4.API.csproj"/>
+    <ProjectReference Include="..\..\src\Wiz.Chapter4.Domain\Wiz.Chapter4.Domain.csproj"/>
+    <ProjectReference Include="..\..\src\Wiz.Chapter4.Infra\Wiz.Chapter4.Infra.csproj"/>
+    <ProjectReference Include="..\Wiz.Chapter4.Core.Tests\Wiz.Chapter4.Core.Tests.csproj"/>
   </ItemGroup>
-
   <ItemGroup>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
   <Target Name="GenerateHtmlCoverageReport" AfterTargets="GenerateCoverageResultAfterTest">
     <ItemGroup>
-      <CoverageFiles Include="..\*\opencovertests.xml" />
+      <CoverageFiles Include="..\*\opencovertests.xml"/>
     </ItemGroup>
-    <ReportGenerator ReportFiles="@(CoverageFiles)" TargetDirectory="../code_coverage" HistoryDirectory="../code_coverage/history" ReportTypes="HtmlInline_AzurePipelines;lcov;Badges" />
+    <ReportGenerator ReportFiles="@(CoverageFiles)" TargetDirectory="../code_coverage" HistoryDirectory="../code_coverage/history" ReportTypes="HtmlInline_AzurePipelines;lcov;Badges"/>
   </Target>
 </Project>
