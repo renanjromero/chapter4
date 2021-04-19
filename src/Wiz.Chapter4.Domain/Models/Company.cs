@@ -11,8 +11,9 @@ namespace Wiz.Chapter4.Domain.Models
             this.NumberOfEmployees = numberOfEmployees;
         }
 
-        public int Id { get; set; }
-        public string DomainName { get; set; }
+        public int Id { get; private set; }
+        public string DomainName { get; private set; }
+        public int NumberOfEmployees { get; private set; }
 
         public bool IsEmailCorporate(string email)
         {
@@ -20,6 +21,12 @@ namespace Wiz.Chapter4.Domain.Models
             return DomainName == emailDomain;
         }
 
-        public int NumberOfEmployees { get; set; }
+        public void ChangeNumberOfEmployees(int delta)
+        {
+            if(NumberOfEmployees + delta < 0)
+                throw new ArgumentException();
+
+            NumberOfEmployees += delta;
+        }
     }
 }

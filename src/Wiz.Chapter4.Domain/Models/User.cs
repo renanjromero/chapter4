@@ -13,10 +13,10 @@ namespace Wiz.Chapter4.Domain.Models
             this.Type = type;
         }
 
-        public int Id { get; set; }
-        public int CompanyId { get; set; }
-        public string Email { get; set; }
-        public UserType Type { get; set; }
+        public int Id { get; private set; }
+        public int CompanyId { get; private set; }
+        public string Email { get; private set; }
+        public UserType Type { get; private set; }
 
         public void ChangeEmail(string newEmail, Company company)
         {
@@ -25,7 +25,7 @@ namespace Wiz.Chapter4.Domain.Models
             if (Type != newType)
             {
                 int delta = newType == UserType.Employee ? 1 : -1;
-                company.NumberOfEmployees = company.NumberOfEmployees + delta;
+                company.ChangeNumberOfEmployees(delta);
             }
 
             Email = newEmail;
