@@ -20,8 +20,7 @@ namespace Wiz.Chapter4.Domain.Models
 
         public void ChangeEmail(string newEmail, Company company)
         {
-            string emailDomain = newEmail.Split('@')[1];
-            UserType newType = emailDomain == company.DomainName ? UserType.Employee : UserType.Customer;
+            UserType newType = company.IsEmailCorporate(newEmail) ? UserType.Employee : UserType.Customer;
 
             if (Type != newType)
             {

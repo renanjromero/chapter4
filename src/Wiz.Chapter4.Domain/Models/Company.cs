@@ -1,3 +1,5 @@
+using System;
+
 namespace Wiz.Chapter4.Domain.Models
 {
     public class Company
@@ -11,6 +13,13 @@ namespace Wiz.Chapter4.Domain.Models
 
         public int Id { get; set; }
         public string DomainName { get; set; }
+
+        public bool IsEmailCorporate(string email)
+        {
+            string emailDomain = email.Split('@')[1];
+            return DomainName == emailDomain;
+        }
+
         public int NumberOfEmployees { get; set; }
     }
 }
