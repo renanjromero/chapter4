@@ -12,7 +12,7 @@ namespace Wiz.Chapter4.Domain.Models
             this.Email = email;
             this.Type = type;
         }
-        
+
         public int Id { get; set; }
         public int CompanyId { get; set; }
         public string Email { get; set; }
@@ -20,7 +20,17 @@ namespace Wiz.Chapter4.Domain.Models
 
         public void ChangeEmail(string newEmail, Company company)
         {
-            throw new NotImplementedException();
+            string emailDomain = newEmail.Split('@')[1];
+            UserType newType = emailDomain == company.DomainName ? UserType.Employee : UserType.Customer;
+
+            if (Type != newType)
+            {
+                int delta = newType == UserType.Employee ? 1 : -1;
+                company.NumberOfEmployees = company.NumberOfEmployees + delta;
+            }
+
+            Email = newEmail;
+            Type = newType;
         }
     }
 }
