@@ -46,8 +46,6 @@ namespace Wiz.Chapter4.Unit.Tests.Services
 
             await sut.ChangeEmailAsync(userId: 1, newEmail: "user@mycorp.com");
 
-            _userRepositoryMock.Verify(x => x.Update(It.IsAny<User>()), Times.Once);
-            _companyRepositoryMock.Verify(x => x.Update(It.IsAny<Company>()), Times.Once);
             _uowMock.Verify(x => x.Commit(), Times.Once);
 
             _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@mycorp.com"), Times.Once);
@@ -75,9 +73,8 @@ namespace Wiz.Chapter4.Unit.Tests.Services
 
             await sut.ChangeEmailAsync(userId: 1, newEmail: "user@gmail.com");
 
-            _userRepositoryMock.Verify(x => x.Update(It.IsAny<User>()), Times.Once);
-            _companyRepositoryMock.Verify(x => x.Update(It.IsAny<Company>()), Times.Once);
             _uowMock.Verify(x => x.Commit(), Times.Once);
+
             _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@gmail.com"), Times.Once);
         }
 
@@ -103,8 +100,6 @@ namespace Wiz.Chapter4.Unit.Tests.Services
 
             await sut.ChangeEmailAsync(userId: 1, newEmail: "user@outlook.com");
 
-            _userRepositoryMock.Verify(x => x.Update(It.IsAny<User>()), Times.Once);
-            _companyRepositoryMock.Verify(x => x.Update(It.IsAny<Company>()), Times.Never);
             _uowMock.Verify(x => x.Commit(), Times.Once);
             _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@outlook.com"), Times.Once);
         }
@@ -131,8 +126,6 @@ namespace Wiz.Chapter4.Unit.Tests.Services
 
             await sut.ChangeEmailAsync(userId: 1, newEmail: "user@gmail.com");
 
-            _userRepositoryMock.Verify(x => x.Update(It.IsAny<User>()), Times.Never);
-            _companyRepositoryMock.Verify(x => x.Update(It.IsAny<Company>()), Times.Never);
             _uowMock.Verify(x => x.Commit(), Times.Never);
 
             _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@outlook.com"), Times.Never);
