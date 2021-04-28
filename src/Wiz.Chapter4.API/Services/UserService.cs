@@ -1,9 +1,12 @@
+using src.Wiz.Chapter4.Domain.Events;
 using System.Threading.Tasks;
 using Wiz.Chapter4.API.Services.Interfaces;
+using Wiz.Chapter4.Domain.Interfaces.Notifications;
 using Wiz.Chapter4.Domain.Interfaces.Repository;
 using Wiz.Chapter4.Domain.Interfaces.Services;
 using Wiz.Chapter4.Domain.Interfaces.UoW;
 using Wiz.Chapter4.Domain.Models;
+using Wiz.Chapter4.Domain.Notifications;
 
 namespace Wiz.Chapter4.API.Services
 {
@@ -13,21 +16,26 @@ namespace Wiz.Chapter4.API.Services
         private readonly ICompanyRepository _companyRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMessageBus _messageBus;
+        private readonly IDomainNotification _domainNotification;
 
-        public UserService(IUserRepository userRepository, ICompanyRepository companyRepository, IUnitOfWork unitOfWork, IMessageBus messageBus)
+        public UserService(IUserRepository userRepository, ICompanyRepository companyRepository, IUnitOfWork unitOfWork, IMessageBus messageBus, Domain.Notifications.DomainNotification domainNotification)
         {
             _userRepository = userRepository;
             _companyRepository = companyRepository;
             _unitOfWork = unitOfWork;
             _messageBus = messageBus;
+            _domainNotification = domainNotification;
         }
 
         public async Task ChangeEmailAsync(int userId, string newEmail)
         {
             User user = await _userRepository.GetByIdAsync(userId);
 
-            if(user.Email == newEmail)
+            NotificationMessage error = user.CanChangeEmail();
+            if(error != null){
+                _domainNotification.AddNotifications(new[]{ error });
                 return;
+            }
 
             Company company = await _companyRepository.GetAsync();
 
@@ -37,7 +45,10 @@ namespace Wiz.Chapter4.API.Services
             _companyRepository.Update(company);
             _unitOfWork.Commit();
 
-            _messageBus.SendEmailChangedMessage(userId, newEmail);
+            foreach(EmailChangedEvent emailChangedEvent in user.EmailChangedEvents)
+            {
+                _messageBus.SendEmailChangedMessage(emailChangedEvent.UserId, emailChangedEvent.NewEmail);
+            }
         }
     }
 }

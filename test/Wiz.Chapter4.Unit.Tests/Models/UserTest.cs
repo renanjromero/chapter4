@@ -1,5 +1,8 @@
+using System;
 using FluentAssertions;
+using src.Wiz.Chapter4.Domain.Events;
 using Wiz.Chapter4.Domain.Models;
+using Wiz.Chapter4.Domain.Notifications;
 using Xunit;
 
 namespace Wiz.Chapter4.Unit.Tests.Models
@@ -17,6 +20,7 @@ namespace Wiz.Chapter4.Unit.Tests.Models
             user.Email.Should().Be("user@gmail.com");
             user.Type.Should().Be(UserType.Customer);
             company.NumberOfEmployees.Should().Be(4);
+            user.EmailChangedEvents.Should().Equal(new EmailChangedEvent(userId: 1, newEmail: "user@gmail.com"));
         }
 
         [Fact]
@@ -30,6 +34,7 @@ namespace Wiz.Chapter4.Unit.Tests.Models
             user.Email.Should().Be("user@mycorp.com");
             user.Type.Should().Be(UserType.Employee);
             company.NumberOfEmployees.Should().Be(6);
+            user.EmailChangedEvents.Count.Should().Be(1);
         }
 
         [Fact]
@@ -43,6 +48,7 @@ namespace Wiz.Chapter4.Unit.Tests.Models
             user.Email.Should().Be("user@outlook.com");
             user.Type.Should().Be(UserType.Customer);
             company.NumberOfEmployees.Should().Be(5);
+            user.EmailChangedEvents.Count.Should().Be(1);
         }
 
         [Fact]
@@ -56,6 +62,26 @@ namespace Wiz.Chapter4.Unit.Tests.Models
             user.Email.Should().Be("user@gmail.com");
             user.Type.Should().Be(UserType.Customer);
             company.NumberOfEmployees.Should().Be(5);
+            user.EmailChangedEvents.Count.Should().Be(0);
+        }
+
+        [Fact]
+        public void Verificando_se_um_email_pode_ser_alterado()
+        {
+            var user = new User(id: 1, email: "user@gmail.com", type: UserType.Customer, isEmailConfirmed: true);
+
+            NotificationMessage error = user.CanChangeEmail();
+
+            error.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void Alterando_um_email_que_nao_pode_ser_alterado()
+        {
+            var user = new User(id: 1, email: "user@gmail.com", type: UserType.Customer, isEmailConfirmed: true);
+            var company = new Company(domain: "mycorp.com", numberOfEmployees: 5);
+
+            Assert.Throws<InvalidOperationException>(() => user.ChangeEmail("user@mycorp.com", company));
         }
     }
 }
