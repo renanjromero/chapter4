@@ -25,7 +25,7 @@ namespace Wiz.Chapter4.Unit.Tests.Services
         }
 
         [Fact]
-        public async Task ChangeEmail_SuccessTestAsync()
+        public async Task ChangeEmail_EmailChangedTestAsync()
         {
             //Arrange
 
@@ -53,6 +53,38 @@ namespace Wiz.Chapter4.Unit.Tests.Services
             //Assert
 
             _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@mycorp.com"), Times.Once);
-        }
+        }  
+
+
+        [Fact]
+        public async Task ChangeEmail_EmailNotChangedTestAsync()
+        {
+            //Arrange
+
+            var user = new User(id: 1, email: "user@gmail.com", UserType.Customer);
+            var company = new Company(domain: "mycorp.com", numberOfEmployees: 1);
+
+            _userRepositoryMock.Setup(x => x.GetByIdAsync(1))
+                .ReturnsAsync(user);
+
+            _companyRepositoryMock.Setup(x => x.GetAsync())
+                .ReturnsAsync(company);
+            
+            var sut = new UserService
+            (
+                userRepository: _userRepositoryMock.Object,
+                companyRepository: _companyRepositoryMock.Object,
+                unitOfWork: _unitOfWork.Object,
+                messageBus: _messageBusMock.Object
+            );
+
+            //Act
+            
+            await sut.ChangeEmailAsync(userId: 1, newEmail: "user@gmail.com");
+
+            //Assert
+
+            _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@mycorp.com"), Times.Never);
+        }        
     }
 }
