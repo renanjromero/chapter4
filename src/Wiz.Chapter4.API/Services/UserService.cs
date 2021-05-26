@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Wiz.Chapter4.API.Services.Interfaces;
+using Wiz.Chapter4.Domain.Enums;
 using Wiz.Chapter4.Domain.Interfaces.Repository;
 using Wiz.Chapter4.Domain.Interfaces.Services;
 using Wiz.Chapter4.Domain.Interfaces.UoW;

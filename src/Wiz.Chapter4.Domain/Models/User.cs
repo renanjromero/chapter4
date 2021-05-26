@@ -1,3 +1,5 @@
+using Wiz.Chapter4.Domain.Enums;
+
 namespace Wiz.Chapter4.Domain.Models
 {
     public class User

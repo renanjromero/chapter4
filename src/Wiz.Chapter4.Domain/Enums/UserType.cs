@@ -1,4 +1,4 @@
-namespace Wiz.Chapter4.Domain.Models
+namespace Wiz.Chapter4.Domain.Enums
 {
     public enum UserType
     {

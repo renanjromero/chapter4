@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Moq;
 using Wiz.Chapter4.API.Services;
+using Wiz.Chapter4.Domain.Enums;
 using Wiz.Chapter4.Domain.Interfaces.Repository;
 using Wiz.Chapter4.Domain.Interfaces.Services;
 using Wiz.Chapter4.Domain.Interfaces.UoW;
