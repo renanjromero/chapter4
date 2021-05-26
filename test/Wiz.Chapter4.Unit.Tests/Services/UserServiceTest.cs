@@ -5,6 +5,7 @@ using Wiz.Chapter4.Domain.Interfaces.Repository;
 using Wiz.Chapter4.Domain.Interfaces.Services;
 using Wiz.Chapter4.Domain.Interfaces.UoW;
 using Wiz.Chapter4.Domain.Models;
+using Wiz.Chapter4.Domain.Notifications;
 using Xunit;
 
 namespace Wiz.Chapter4.Unit.Tests.Services
@@ -15,6 +16,7 @@ namespace Wiz.Chapter4.Unit.Tests.Services
         private readonly Mock<ICompanyRepository> _companyRepositoryMock;
         private readonly Mock<IUnitOfWork> _unitOfWork;
         private readonly Mock<IMessageBus> _messageBusMock;
+        private readonly DomainNotification _domainNotification;
 
         public UserServiceTest()
         {
@@ -22,6 +24,7 @@ namespace Wiz.Chapter4.Unit.Tests.Services
             _companyRepositoryMock = new Mock<ICompanyRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _messageBusMock = new Mock<IMessageBus>();
+            _domainNotification = new DomainNotification();
         }
 
         [Fact]
@@ -38,17 +41,18 @@ namespace Wiz.Chapter4.Unit.Tests.Services
             _companyRepositoryMock.Setup(x => x.GetAsync())
                 .ReturnsAsync(company);
             
-            var sut = new UserService
+            var userService = new UserService
             (
                 userRepository: _userRepositoryMock.Object,
                 companyRepository: _companyRepositoryMock.Object,
                 unitOfWork: _unitOfWork.Object,
-                messageBus: _messageBusMock.Object
+                messageBus: _messageBusMock.Object,
+                domainNotification: _domainNotification
             );
 
             //Act
             
-            await sut.ChangeEmailAsync(userId: 1, newEmail: "user@mycorp.com");
+            await userService.ChangeEmailAsync(userId: 1, newEmail: "user@mycorp.com");
 
             //Assert
 
@@ -70,17 +74,18 @@ namespace Wiz.Chapter4.Unit.Tests.Services
             _companyRepositoryMock.Setup(x => x.GetAsync())
                 .ReturnsAsync(company);
             
-            var sut = new UserService
+            var userService = new UserService
             (
                 userRepository: _userRepositoryMock.Object,
                 companyRepository: _companyRepositoryMock.Object,
                 unitOfWork: _unitOfWork.Object,
-                messageBus: _messageBusMock.Object
+                messageBus: _messageBusMock.Object,
+                domainNotification: _domainNotification
             );
 
             //Act
             
-            await sut.ChangeEmailAsync(userId: 1, newEmail: "user@gmail.com");
+            await userService.ChangeEmailAsync(userId: 1, newEmail: "user@gmail.com");
 
             //Assert
 

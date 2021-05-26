@@ -15,4 +15,4 @@ namespace Wiz.Chapter4.Domain.Models
 
         public UserType Type { get; set; }
     }
-}
+}   
