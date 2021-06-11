@@ -33,25 +33,25 @@ namespace Wiz.Chapter4.API.Services
             if(user.Email == newEmail)
                 return;
 
-            Company company = await _companyRepository.GetAsync();
-
-            string emailDomain = newEmail.Split('@')[1];
-            UserType newType = emailDomain == company.Domain ? UserType.Employee : UserType.Customer;
-
-            if (user.Type != newType)
+            var notificationMessage = user.CanChangeEmail();
+            if(notificationMessage != null)
             {
-                int delta = newType == UserType.Employee ? 1 : -1;
-                company.NumberOfEmployees = company.NumberOfEmployees + delta;
-                _companyRepository.Update(company);
+                _domainNotification.AddNotifications(new []{notificationMessage});
+                return;
             }
 
-            user.Email = newEmail;
-            user.Type = newType;
+            Company company = await _companyRepository.GetAsync();
+
+            user.ChangeEmail(newEmail, company);
 
             _userRepository.Update(user);
+            _companyRepository.Update(company);
             _unitOfWork.Commit();
 
-            _messageBus.SendEmailChangedMessage(userId, newEmail);
+            foreach (var emailChangedEvent in user.EmailChangedEvents)
+            {
+                _messageBus.SendEmailChangedMessage(emailChangedEvent.UserId, emailChangedEvent.NewEmail);
+            }
         }
     }
 }

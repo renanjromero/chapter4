@@ -1,4 +1,6 @@
+using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
 using Wiz.Chapter4.API.Services;
 using Wiz.Chapter4.Domain.Enums;
@@ -92,5 +94,38 @@ namespace Wiz.Chapter4.Unit.Tests.Services
 
             _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@mycorp.com"), Times.Never);
         }        
+    
+        [Fact]
+        public async Task ChangeEmail_EmailConfirmerdTestAsync()
+        {
+            //Arrange
+
+            var user = new User(id: 1, email: "user@gmail.com", UserType.Customer, isEmailConfirmed: true);
+            var company = new Company(domain: "mycorp.com", numberOfEmployees: 1);
+
+            _userRepositoryMock.Setup(x => x.GetByIdAsync(1))
+                .ReturnsAsync(user);
+
+            _companyRepositoryMock.Setup(x => x.GetAsync())
+                .ReturnsAsync(company);
+            
+            var sut = new UserService
+            (
+                userRepository: _userRepositoryMock.Object,
+                companyRepository: _companyRepositoryMock.Object,
+                unitOfWork: _unitOfWork.Object,
+                messageBus: _messageBusMock.Object,
+                domainNotification: _domainNotification
+            );
+
+            //Act
+            
+            await sut.ChangeEmailAsync(userId: 1, newEmail: "user@mycorp.com");
+
+            //Assert
+
+            _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@mycorp.com"), Times.Never);
+            _domainNotification.Notifications.First().Value.Should().Be("O e-mail não pode ser alterado pois já está confirmado");
+        }
     }
 }
