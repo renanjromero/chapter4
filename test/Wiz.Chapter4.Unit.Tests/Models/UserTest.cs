@@ -1,5 +1,7 @@
+using System;
 using FluentAssertions;
 using Wiz.Chapter4.Domain.Enums;
+using Wiz.Chapter4.Domain.Events;
 using Wiz.Chapter4.Domain.Models;
 using Wiz.Chapter4.Domain.Notifications;
 using Xunit;
@@ -33,6 +35,7 @@ namespace Wiz.Chapter4.Unit.Tests.Models
             user.Email.Should().Be("user@mycorp.com");
             user.Type.Should().Be(UserType.Employee);
             company.NumberOfEmployees.Should().Be(6);
+            user.EmailChangedEvents.Equals(new EmailChangedEvent(userId: 1, newEmail: "user@mycorp.com"));
         }
 
         [Fact]
@@ -46,6 +49,7 @@ namespace Wiz.Chapter4.Unit.Tests.Models
             user.Email.Should().Be("user@yahoo.com");
             user.Type.Should().Be(UserType.Customer);
             company.NumberOfEmployees.Should().Be(5);
+            user.EmailChangedEvents.Equals(new EmailChangedEvent(userId: 1, newEmail: "user@yahoo.com"));
         }
 
         [Fact]
@@ -71,5 +75,14 @@ namespace Wiz.Chapter4.Unit.Tests.Models
 
             error.Value.Should().Be("O e-mail não pode ser alterado pois já está confirmado");
         } 
+
+        [Fact]
+        public void Alterando_um_email_que_nao_pode_ser_alterado()
+        {
+            User user = new User(id: 1, email: "user@gmail.com", type: UserType.Customer, isEmailConfirmed: true);
+            Company company = new Company(domain: "mycorp.com", numberOfEmployees: 5);
+
+            Assert.Throws<InvalidOperationException>(() => user.ChangeEmail("user@mycorp.com", company));
+        }
     }
 }

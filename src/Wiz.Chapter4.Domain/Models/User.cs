@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Wiz.Chapter4.Domain.Enums;
+using Wiz.Chapter4.Domain.Events;
 using Wiz.Chapter4.Domain.Notifications;
 using Wiz.Chapter4.Domain.Validations;
 
@@ -32,6 +33,16 @@ namespace Wiz.Chapter4.Domain.Models
 
         public List<EmailChangedEvent> EmailChangedEvents { get; private set; }
 
+        public NotificationMessage CanChangeEmail()
+        {
+            if(IsEmailConfirmed)
+            {
+                return new NotificationMessage("","O e-mail não pode ser alterado pois já está confirmado");
+            }
+
+            return null;
+        }
+
         public void ChangeEmail(string newEmail, Company company)
         {
             if(Email == newEmail)
@@ -53,28 +64,5 @@ namespace Wiz.Chapter4.Domain.Models
 
             EmailChangedEvents.Add(new EmailChangedEvent(Id, newEmail));
         }
-
-        public NotificationMessage CanChangeEmail()
-        {
-            if(IsEmailConfirmed)
-            {
-                return new NotificationMessage("","O e-mail não pode ser alterado pois já está confirmado");
-            }
-
-            return null;
-        }
-    }
-
-    public struct EmailChangedEvent
-    {
-        public EmailChangedEvent(int userId, string newEmail)
-        {
-            UserId = userId;
-            NewEmail = newEmail;
-        }
-
-        public int UserId { get; }
-
-        public string NewEmail { get; }
     }
 }   
