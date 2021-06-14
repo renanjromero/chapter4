@@ -1,26 +1,57 @@
 using System;
+using System.Collections.Generic;
+using Wiz.Chapter4.Domain.Enums;
+using Wiz.Chapter4.Domain.Events;
+using Wiz.Chapter4.Domain.Notifications;
+using Wiz.Chapter4.Domain.Validations;
 
 namespace Wiz.Chapter4.Domain.Models
 {
     public class User
     {
+        public User(int id, string email, UserType type): this(id, email, type, isEmailConfirmed: false)
+        {            
+        }
 
-        public User(int id, int companyId, string email, UserType type)
+        public User(int id, string email, UserType type, bool isEmailConfirmed)
         {
-            this.Id = id;
-            this.CompanyId = companyId;
-            this.Email = email;
-            this.Type = type;
+            Id = id;
+            Email = email;
+            Type = type;
+            IsEmailConfirmed = isEmailConfirmed;
+
+            EmailChangedEvents = new List<EmailChangedEvent>();
         }
 
         public int Id { get; private set; }
-        public int CompanyId { get; private set; }
+
         public string Email { get; private set; }
+
         public UserType Type { get; private set; }
+
+        public bool IsEmailConfirmed { get; private set; }
+
+        public List<EmailChangedEvent> EmailChangedEvents { get; private set; }
+
+        public NotificationMessage CanChangeEmail()
+        {
+            if(IsEmailConfirmed)
+            {
+                return new NotificationMessage("","O e-mail não pode ser alterado pois já está confirmado");
+            }
+
+            return null;
+        }
 
         public void ChangeEmail(string newEmail, Company company)
         {
-            UserType newType = company.IsEmailCorporate(newEmail) ? UserType.Employee : UserType.Customer;
+            if(Email == newEmail)
+                return;
+
+            Precondition.Requires(CanChangeEmail() == null);
+
+            string emailDomain = newEmail.Split('@')[1];
+            UserType newType = emailDomain == company.Domain ? UserType.Employee : UserType.Customer;
 
             if (Type != newType)
             {
@@ -30,6 +61,8 @@ namespace Wiz.Chapter4.Domain.Models
 
             Email = newEmail;
             Type = newType;
+
+            EmailChangedEvents.Add(new EmailChangedEvent(Id, newEmail));
         }
     }
-}
+}   

@@ -40,6 +40,5 @@
     <ItemGroup>
       <CoverageFiles Include="..\*\opencovertests.xml"/>
     </ItemGroup>
-    <ReportGenerator ReportFiles="@(CoverageFiles)" TargetDirectory="../code_coverage" HistoryDirectory="../code_coverage/history" ReportTypes="HtmlInline_AzurePipelines;lcov;Badges"/>
   </Target>
 </Project>

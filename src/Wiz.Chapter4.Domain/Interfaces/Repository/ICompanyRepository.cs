@@ -5,6 +5,6 @@ namespace Wiz.Chapter4.Domain.Interfaces.Repository
 {
     public interface ICompanyRepository: IEntityBaseRepository<Company>
     {
-        Task<Company> GetByIdAsync(int companyId);
+        Task<Company> GetAsync();
     }
 }

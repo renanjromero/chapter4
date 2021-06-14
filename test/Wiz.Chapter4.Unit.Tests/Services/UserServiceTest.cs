@@ -1,10 +1,14 @@
+using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Moq;
 using Wiz.Chapter4.API.Services;
-using Wiz.Chapter4.API.Services.Interfaces;
+using Wiz.Chapter4.Domain.Enums;
 using Wiz.Chapter4.Domain.Interfaces.Repository;
+using Wiz.Chapter4.Domain.Interfaces.Services;
 using Wiz.Chapter4.Domain.Interfaces.UoW;
 using Wiz.Chapter4.Domain.Models;
+using Wiz.Chapter4.Domain.Notifications;
 using Xunit;
 
 namespace Wiz.Chapter4.Unit.Tests.Services
@@ -13,67 +17,115 @@ namespace Wiz.Chapter4.Unit.Tests.Services
     {
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private readonly Mock<ICompanyRepository> _companyRepositoryMock;
-        private readonly Mock<IUnitOfWork> _uowMock;
+        private readonly Mock<IUnitOfWork> _unitOfWork;
         private readonly Mock<IMessageBus> _messageBusMock;
+        private readonly DomainNotification _domainNotification;
 
         public UserServiceTest()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
             _companyRepositoryMock = new Mock<ICompanyRepository>();
-            _uowMock = new Mock<IUnitOfWork>();
+            _unitOfWork = new Mock<IUnitOfWork>();
             _messageBusMock = new Mock<IMessageBus>();
+            _domainNotification = new DomainNotification();
         }
 
         [Fact]
-        public async Task Email_is_changed()
+        public async Task ChangeEmail_EmailChangedTestAsync()
         {
-            var company = new Company(id: 1, domainName: "mycorp.com", numberOfEmployees: 1);
-            var user = new User(id: 1, companyId: 1, email: "user@gmail.com", UserType.Customer);
+            //Arrange
+
+            var user = new User(id: 1, email: "user@gmail.com", UserType.Customer);
+            var company = new Company(domain: "mycorp.com", numberOfEmployees: 1);
 
             _userRepositoryMock.Setup(x => x.GetByIdAsync(1))
                 .ReturnsAsync(user);
 
-            _companyRepositoryMock.Setup(x => x.GetByIdAsync(1))
+            _companyRepositoryMock.Setup(x => x.GetAsync())
                 .ReturnsAsync(company);
+            
+            var userService = new UserService
+            (
+                userRepository: _userRepositoryMock.Object,
+                companyRepository: _companyRepositoryMock.Object,
+                unitOfWork: _unitOfWork.Object,
+                messageBus: _messageBusMock.Object,
+                domainNotification: _domainNotification
+            );
 
+            //Act
+            
+            await userService.ChangeEmailAsync(userId: 1, newEmail: "user@mycorp.com");
+
+            //Assert
+
+            _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@mycorp.com"), Times.Once);
+        }  
+
+
+        [Fact]
+        public async Task ChangeEmail_EmailNotChangedTestAsync()
+        {
+            //Arrange
+
+            var user = new User(id: 1, email: "user@gmail.com", UserType.Customer);
+            var company = new Company(domain: "mycorp.com", numberOfEmployees: 1);
+
+            _userRepositoryMock.Setup(x => x.GetByIdAsync(1))
+                .ReturnsAsync(user);
+
+            _companyRepositoryMock.Setup(x => x.GetAsync())
+                .ReturnsAsync(company);
+            
+            var userService = new UserService
+            (
+                userRepository: _userRepositoryMock.Object,
+                companyRepository: _companyRepositoryMock.Object,
+                unitOfWork: _unitOfWork.Object,
+                messageBus: _messageBusMock.Object,
+                domainNotification: _domainNotification
+            );
+
+            //Act
+            
+            await userService.ChangeEmailAsync(userId: 1, newEmail: "user@gmail.com");
+
+            //Assert
+
+            _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@mycorp.com"), Times.Never);
+        }        
+    
+        [Fact]
+        public async Task ChangeEmail_EmailConfirmerdTestAsync()
+        {
+            //Arrange
+
+            var user = new User(id: 1, email: "user@gmail.com", UserType.Customer, isEmailConfirmed: true);
+            var company = new Company(domain: "mycorp.com", numberOfEmployees: 1);
+
+            _userRepositoryMock.Setup(x => x.GetByIdAsync(1))
+                .ReturnsAsync(user);
+
+            _companyRepositoryMock.Setup(x => x.GetAsync())
+                .ReturnsAsync(company);
+            
             var sut = new UserService
             (
                 userRepository: _userRepositoryMock.Object,
                 companyRepository: _companyRepositoryMock.Object,
-                uow: _uowMock.Object,
-                messageBus: _messageBusMock.Object
+                unitOfWork: _unitOfWork.Object,
+                messageBus: _messageBusMock.Object,
+                domainNotification: _domainNotification
             );
 
+            //Act
+            
             await sut.ChangeEmailAsync(userId: 1, newEmail: "user@mycorp.com");
 
-            _uowMock.Verify(x => x.Commit(), Times.Once);
-            _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@mycorp.com"), Times.Once);
-        }
+            //Assert
 
-        [Fact]
-        public async Task Email_is_not_changed()
-        {
-            var company = new Company(id: 1, domainName: "mycorp.com", numberOfEmployees: 1);
-            var user = new User(id: 1, companyId: 1, email: "user@gmail.com", UserType.Customer);
-
-            _userRepositoryMock.Setup(x => x.GetByIdAsync(1))
-                .ReturnsAsync(user);
-
-            _companyRepositoryMock.Setup(x => x.GetByIdAsync(1))
-                .ReturnsAsync(company);
-
-            var sut = new UserService
-            (
-                userRepository: _userRepositoryMock.Object,
-                companyRepository: _companyRepositoryMock.Object,
-                uow: _uowMock.Object,
-                messageBus: _messageBusMock.Object
-            );
-
-            await sut.ChangeEmailAsync(userId: 1, newEmail: "user@gmail.com");
-
-            _uowMock.Verify(x => x.Commit(), Times.Never);
-            _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@outlook.com"), Times.Never);
+            _messageBusMock.Verify(x => x.SendEmailChangedMessage(1, "user@mycorp.com"), Times.Never);
+            _domainNotification.Notifications.First().Value.Should().Be("O e-mail não pode ser alterado pois já está confirmado");
         }
     }
 }

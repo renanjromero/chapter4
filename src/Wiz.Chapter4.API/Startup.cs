@@ -17,7 +17,6 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.Net.Http.Headers;
 using NSwag;
 using NSwag.Generation.Processors.Security;
-using Polly;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -26,25 +25,17 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using Wiz.Chapter4.API.Extensions;
 using Wiz.Chapter4.API.Filters;
 using Wiz.Chapter4.API.Middlewares;
-using Wiz.Chapter4.API.Services;
-using Wiz.Chapter4.API.Services.Interfaces;
 using Wiz.Chapter4.API.Settings;
 using Wiz.Chapter4.Domain.Interfaces.Identity;
 using Wiz.Chapter4.Domain.Interfaces.Notifications;
-using Wiz.Chapter4.Domain.Interfaces.Repository;
-using Wiz.Chapter4.Domain.Interfaces.Services;
 using Wiz.Chapter4.Domain.Interfaces.UoW;
 using Wiz.Chapter4.Domain.Notifications;
 using Wiz.Chapter4.Infra.Context;
 using Wiz.Chapter4.Infra.Identity;
-using Wiz.Chapter4.Infra.Repository;
-using Wiz.Chapter4.Infra.Services;
 using Wiz.Chapter4.Infra.UoW;
 
 namespace Wiz.Chapter4.API
@@ -257,19 +248,6 @@ namespace Wiz.Chapter4.API
 
         private void RegisterHttpClient(IServiceCollection services)
         {
-            services.AddHttpClient<IViaCEPService, ViaCEPService>((s, c) =>
-                        {
-                            c.BaseAddress = new Uri(Configuration["API:ViaCEP"]);
-                            c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                        }).AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.OrResult(response =>
-                                (int)response.StatusCode == (int)HttpStatusCode.InternalServerError)
-                          .WaitAndRetryAsync(3, retry =>
-                               TimeSpan.FromSeconds(Math.Pow(2, retry)) +
-                               TimeSpan.FromMilliseconds(new Random(9876).Next(0, 100))))
-                          .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.CircuitBreakerAsync(
-                               handledEventsAllowedBeforeBreaking: 3,
-                               durationOfBreak: TimeSpan.FromSeconds(30)
-                        ));
         }
 
         protected virtual void RegisterServices(IServiceCollection services)
@@ -277,7 +255,6 @@ namespace Wiz.Chapter4.API
             services.Configure<ApplicationInsightsSettings>(Configuration.GetSection("ApplicationInsights"));
 
             #region Service
-            services.AddScoped<ICustomerService, CustomerService>();
 
             #endregion
 
@@ -291,8 +268,6 @@ namespace Wiz.Chapter4.API
 
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-            services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IIdentityService, IdentityService>();
 
             #endregion
