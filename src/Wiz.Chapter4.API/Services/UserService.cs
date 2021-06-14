@@ -25,6 +25,36 @@ namespace Wiz.Chapter4.API.Services
             _domainNotification = domainNotification;
         }
 
+        // ANTES DA REFATORAÇÃO
+        // public async Task ChangeEmailAsync(int userId, string newEmail)
+        // {
+        //     User user = await _userRepository.GetByIdAsync(userId);
+
+        //     if(user.Email == newEmail)
+        //         return;
+
+        //     Company company = await _companyRepository.GetAsync();
+
+        //     string emailDomain = newEmail.Split('@')[1];
+        //     UserType newType = emailDomain == company.Domain ? UserType.Employee : UserType.Customer;
+
+        //     if (user.Type != newType)
+        //     {
+        //         int delta = newType == UserType.Employee ? 1 : -1;
+        //         company.NumberOfEmployees = company.NumberOfEmployees + delta;
+        //         _companyRepository.Update(company);
+        //     }
+
+        //     user.Email = newEmail;
+        //     user.Type = newType;
+
+        //     _userRepository.Update(user);
+        //     _unitOfWork.Commit();
+
+        //     _messageBus.SendEmailChangedMessage(userId, newEmail);
+        // }
+
+        //DEPOIS DA REFATORAÇÃO
         public async Task ChangeEmailAsync(int userId, string newEmail)
         {
             User user = await _userRepository.GetByIdAsync(userId);
