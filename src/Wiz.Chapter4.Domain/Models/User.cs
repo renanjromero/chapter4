@@ -9,6 +9,11 @@ namespace Wiz.Chapter4.Domain.Models
 {
     public class User
     {
+
+        public User(string email, UserType type): this(id: 0, email, type)
+        {
+        }
+
         public User(int id, string email, UserType type): this(id, email, type, isEmailConfirmed: false)
         {            
         }
