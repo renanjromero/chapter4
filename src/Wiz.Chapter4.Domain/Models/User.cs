@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Wiz.Chapter4.Domain.Enums;
 using Wiz.Chapter4.Domain.Events;
@@ -11,6 +10,10 @@ namespace Wiz.Chapter4.Domain.Models
     {
 
         public User(string email, UserType type): this(id: 0, email, type)
+        {
+        }
+
+        public User(string email, UserType type, bool isEmailConfirmed) : this(id: 0, email, type, isEmailConfirmed)
         {
         }
 
