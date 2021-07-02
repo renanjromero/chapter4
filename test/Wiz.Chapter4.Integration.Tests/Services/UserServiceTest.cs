@@ -29,7 +29,6 @@ namespace Wiz.Chapter4.Integration.Tests.Services
             _dbContextOptions = new DbContextOptionsBuilder<EntityContext>()
                .UseSqlServer(_connectionString)
                .Options;
-
         }
 
         [Fact]
